@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Your First Can — Mood</title>
+<style>
+body {
+  margin: 0;
+  padding: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #ffffff;
+}
+ 
+* { box-sizing: border-box; }
+ 
+.finder {
+  background: #1B3A2F;
+  border-radius: 16px;
+  padding: 32px 28px 28px;
+  max-width: 540px;
+  margin: 0 auto;
+  color: #ffffff;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+}
+ 
+.step { display: none; flex-direction: column; flex: 1; }
+.step.active { display: flex; }
+ 
+.progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+.progress-dot {
+  height: 3px;
+  flex: 1;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  transition: background 0.35s ease;
+}
+.progress-dot.filled { background: rgba(255,255,255,0.9); }
+ 
+.question-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin: 0 0 8px;
+  flex-shrink: 0;
+}
+.question-text {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 22px;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+ 
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 1;
+}
+ 
+.option-btn {
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 14px 18px;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.18s, border-color 0.18s, transform 0.12s;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+}
+.option-btn:hover {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.38);
+  transform: translateY(-1px);
+}
+.option-btn:active { transform: translateY(0); }
+ 
+.option-icon {
+  font-size: 1.3rem;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.option-label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 1px;
+  font-size: 15px;
+}
+.option-sub {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 400;
+  display: block;
+}
+ 
+/* Result */
+.result-badge {
+  display: inline-block;
+  padding: 5px 13px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  align-self: flex-start;
+  flex-shrink: 0;
+}
+.result-dose {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+  margin: 0 0 4px;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+.result-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: rgba(255,255,255,0.8);
+  flex-shrink: 0;
+}
+.result-desc {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: rgba(255,255,255,0.68);
+  margin: 0 0 24px;
+  flex: 1;
+}
+.cta-btn {
+  display: block;
+  width: 100%;
+  padding: 15px 20px;
+  border-radius: 12px;
+  border: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: opacity 0.18s, transform 0.12s;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+.cta-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.cta-btn:active { transform: translateY(0); }
+ 
+.restart-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.38);
+  font-family: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+  padding: 4px 0 0;
+  width: 100%;
+  text-align: center;
+  transition: color 0.18s;
+  flex-shrink: 0;
+}
+.restart-btn:hover { color: rgba(255,255,255,0.65); }
+ 
+@media (max-width: 400px) {
+  body { padding: 10px; }
+  .finder { padding: 24px 18px 20px; }
+  .question-text { font-size: 1.15rem; }
+  .result-dose { font-size: 2.5rem; }
+}
+</style>
+</head>
+<body>
+ 
+<div class="finder" id="finder">
+ 
+  <!-- STEP 1 -->
+  <div class="step active" id="step1">
+    <div class="progress">
+      <div class="progress-dot filled"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+    <p class="question-label">Step 1 of 2</p>
+    <p class="question-text">How new are you to THC drinks?</p>
+    <div class="options">
+      <button class="option-btn" onclick="choose(1,'new')">
+        <span class="option-icon">🌱</span>
+        <span>
+          <span class="option-label">Brand new</span>
+          <span class="option-sub">Never tried one before</span>
+        </span>
+      </button>
+      <button class="option-btn" onclick="choose(1,'some')">
+        <span class="option-icon">✌️</span>
+        <span>
+          <span class="option-label">Tried it once or twice</span>
+          <span class="option-sub">Getting the hang of it</span>
+        </span>
+      </button>
+      <button class="option-btn" onclick="choose(1,'exp')">
+        <span class="option-icon">🌿</span>
+        <span>
+          <span class="option-label">I know what I'm doing</span>
+          <span class="option-sub">Regular cannabis beverage drinker</span>
+        </span>
+      </button>
+    </div>
+  </div>
+ 
+  <!-- STEP 2 -->
+  <div class="step" id="step2">
+    <div class="progress">
+      <div class="progress-dot filled"></div>
+      <div class="progress-dot filled"></div>
+      <div class="progress-dot"></div>
+    </div>
+    <p class="question-label">Step 2 of 2</p>
+    <p class="question-text">What's the vibe tonight?</p>
+    <div class="options">
+      <button class="option-btn" onclick="choose(2,'solo')">
+        <span class="option-icon">🛋️</span>
+        <span>
+          <span class="option-label">Solo wind-down</span>
+          <span class="option-sub">Quiet evening, just for me</span>
+        </span>
+      </button>
+      <button class="option-btn" onclick="choose(2,'social')">
+        <span class="option-icon">👥</span>
+        <span>
+          <span class="option-label">Social occasion</span>
+          <span class="option-sub">Friends, a gathering, or a party</span>
+        </span>
+      </button>
+      <button class="option-btn" onclick="choose(2,'mellow')">
+        <span class="option-icon">☀️</span>
+        <span>
+          <span class="option-label">Keeping it mellow</span>
+          <span class="option-sub">Light, easy, no big plans</span>
+        </span>
+      </button>
+    </div>
+  </div>
+ 
+  <!-- RESULT -->
+  <div class="step" id="step3">
+    <div class="progress">
+      <div class="progress-dot filled"></div>
+      <div class="progress-dot filled"></div>
+      <div class="progress-dot filled"></div>
+    </div>
+    <p class="question-label">Your recommendation</p>
+    <span class="result-badge" id="result-badge">Starter pick</span>
+    <p class="result-dose" id="result-dose">5mg</p>
+    <p class="result-title" id="result-title">The Social Dose</p>
+    <p class="result-desc" id="result-desc">A noticeable mood shift and a gentle buzz — popular for replacing a glass of wine or a beer at a gathering. Many first-timers describe it as the perfect starting point.</p>
+    <a href="https://mood.com/product/strawberry-lemonade-seltzer" target="_blank" class="cta-btn" id="result-cta" style="background:#F2D5CC;color:#1B3A2F;">Shop Strawberry Lemonade Seltzer →</a>
+    <button class="restart-btn" onclick="restart()">← Start over</button>
+  </div>
+ 
+</div>
+ 
+<script>
+var answers = {};
+ 
+var results = {
+  'new': {
+    solo:   { dose: '2.5mg', badge: 'Gentle intro',   title: 'The Microdose',    desc: 'Many newcomers find that 2.5mg is the perfect first step — a subtle mood lift and light ease that lets you get a feel for the experience without committing to more. Half a can is all you need to start.', color: '#CCE5D3', text: '#1B3A2F' },
+    social: { dose: '5mg',   badge: 'Starter pick',   title: 'The Social Dose',  desc: 'For a first-timer at a social occasion, 5mg is the sweet spot. Many people describe it as comparable to a glass of wine — a noticeable but comfortable shift that\'s easy to pace throughout the evening.', color: '#F2D5CC', text: '#1B3A2F' },
+    mellow: { dose: '2.5mg', badge: 'Light & easy',   title: 'The Mellow Start', desc: 'A 2.5mg microdose is the ideal way to ease in on a low-key evening. Many people describe a gentle warmth and quiet uplift — perfect for a relaxed first experience where you stay fully in control.', color: '#D5CCF2', text: '#1B3A2F' }
+  },
+  some: {
+    solo:   { dose: '5mg',   badge: 'Your sweet spot', title: 'The Wind-Down',   desc: 'With a little experience behind you, 5mg is a reliable choice for a solo evening. Many users describe a calm, easy-going feeling that settles in within 15 to 30 minutes and lasts a couple of hours.', color: '#CCE5D3', text: '#1B3A2F' },
+    social: { dose: '5mg',   badge: 'Crowd pleaser',   title: 'The Social Dose', desc: '5mg is the most popular tier for social occasions — enough for a clear, pleasant buzz that many people liken to swapping out a beer or glass of wine for something a little more interesting.', color: '#F2D5CC', text: '#1B3A2F' },
+    mellow: { dose: '5mg',   badge: 'Easy evening',    title: 'The Mellow Pick', desc: '5mg hits that controlled, mellow zone that many people are after on a low-key night. Sip it slowly and you stay in full control of where the evening goes.', color: '#D5CCF2', text: '#1B3A2F' }
+  },
+  exp: {
+    solo:   { dose: '10mg',  badge: 'Full effect',    title: 'The Evening Dose', desc: '10mg delivers a clear, satisfying experience for someone with an established tolerance. Many regular cannabis drink consumers describe it as the go-to dose for a proper, intentional wind-down.', color: '#CCE5D3', text: '#1B3A2F' },
+    social: { dose: '10mg',  badge: 'Full effect',    title: 'The Social Pick',  desc: 'For an experienced consumer at a social occasion, 10mg is the natural choice — a genuine buzz that\'s still easy to manage and familiar enough to enjoy without overthinking it.', color: '#F2D5CC', text: '#1B3A2F' },
+    mellow: { dose: '5mg',   badge: 'Balanced',       title: 'The Chill Pick',   desc: 'Even with experience, 5mg is a solid pick when you want to keep things genuinely light. It\'s the most versatile dose in the range — enough to feel it, easy enough to stay relaxed all evening.', color: '#D5CCF2', text: '#1B3A2F' }
+  }
+};
+ 
+function choose(step, val) {
+  answers['q' + step] = val;
+  if (step === 2) {
+    buildResult();
+  }
+  showStep(step + 1);
+}
+ 
+function showStep(n) {
+  var steps = document.querySelectorAll('.step');
+  for (var i = 0; i < steps.length; i++) {
+    steps[i].classList.remove('active');
+  }
+  var target = document.getElementById('step' + n);
+  if (target) target.classList.add('active');
+}
+ 
+function buildResult() {
+  var r = results[answers.q1][answers.q2];
+  var badge = document.getElementById('result-badge');
+  var cta   = document.getElementById('result-cta');
+ 
+  badge.textContent = r.badge;
+  badge.style.background = r.color;
+  badge.style.color = r.text;
+  document.getElementById('result-dose').textContent  = r.dose;
+  document.getElementById('result-title').textContent = r.title;
+  document.getElementById('result-desc').textContent  = r.desc;
+  cta.style.background = r.color;
+  cta.style.color = r.text;
+}
+ 
+function restart() {
+  answers = {};
+  showStep(1);
+}
+</script>
+ 
+</body>
+</html>
